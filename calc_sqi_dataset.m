@@ -17,7 +17,7 @@ function [ SQI ] = calc_sqi_dataset ( DATASET )
         fclose(f);
     end
     
-    for i=1:numel(files{:})
+    parfor i=1:numel(files{:})
         procFile(files{1}{i},PATH,RES_PATH,1);
     end
     
