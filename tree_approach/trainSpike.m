@@ -1,9 +1,9 @@
-function [] = trainSpike ()
-    [acc_train unacc_train acc_test unacc_test] = get_train_set(0.5);
+function [ tp_per ] = trainSpike ()
+    [acc_train unacc_train acc_test unacc_test] = get_train_set(1);
     
     N = size(acc_train,1)+size(unacc_train,1);
     th = 20;
-    per = [0.0:0.5:1];
+    per = logspace(-8,0,100); %[0.0:0.02:0.1]; % Por ahi hay que cambiarlo a logspace porque los puntos con los que genera la roc estan muy agrupados
   
     thacc = trainSpikeTH(1); % Vector de maximas derivadas de los OK
     thunacc = trainSpikeTH(0); % vector de maximas derivadas de los NO OK
@@ -12,6 +12,14 @@ function [] = trainSpike ()
     [h_acc x_acc] = hist(thacc,0:3:250);
     [h_unacc x_unacc]  = hist(thunacc,0:3:250);
     [h_mit x_mit] = hist(thmit,0:3:250);
+    
+    h_acc = h_acc/numel(thacc);
+    h_unacc = h_unacc/numel(thunacc);
+    h_mit = h_mit/numel(thmit);
+    
+    th= prctile(thmit,99);
+    prc_descartado= 1-sum(h_unacc(x_unacc<th));
+    
     parfor i=1:numel(per)
         [tp] = cellfun(@(x)calc_spikes(x,th,per(i)),acc_train);
         [fp] = cellfun(@(x)calc_spikes(x,th,per(i)),unacc_train);
@@ -19,11 +27,26 @@ function [] = trainSpike ()
         fp = sum(fp);
         fn = size(acc_train,1)-tp;
         tn = size(unacc_train,1)-fp;
-        Ac(i) = (tp+tn)/N;
-        Se(i) = tp/(tp+fn);
+        
+        tp = tp/size(acc_train,1);
+        fp = fp/size(unacc_train,1);
+        
+        tp_out(i) = tp;
+        fp_out(i) = fp; 
+        
+     
+        
     end
     
+    trapz(fp_out,tp_out);
+    plot(fp_out,tp_out);
+    d = sqrt(fp_out.^2+(1-tp_out).^2);
     
+    best_per = per(d==min(d)); % Mas cercano al ideal 
+    aceptableTP = 0.98;
+    
+    d = abs(tp_out-aceptableTP);
+    tp_per = per(d==min(d));
     
 end
 
@@ -50,7 +73,6 @@ function [th_vec] = trainSpikeTH (acc)
     out =cell(1,size(f,2));
     
     parfor i=1:size(f,2)
-    %for i=1:size(f,2)
         ECGw = ECGwrapper ('recording_name', [PATH f{i}], ...
                            'output_path',[PATH 'qrs/'], ...
                            'ECGtaskHandle',ECGtask , ...
@@ -95,6 +117,8 @@ function ret = calc_spikes(file,th,per)
     N= header.nsamp;
     ECG = ECGw.read_signal(1,N);
     
+    th = th* header.gain(1)/header.freq;
+        
     speaks=sum(abs(diff(ECG))>th)/N;
     ret = all(speaks < per);
 

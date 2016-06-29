@@ -1,0 +1,5 @@
+function [ th ] = trainFlatLine(  )
+    
+
+end
+
