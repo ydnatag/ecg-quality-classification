@@ -17,7 +17,7 @@ function [ tp_per ] = trainSpike ()
     h_unacc = h_unacc/numel(thunacc);
     h_mit = h_mit/numel(thmit);
     
-    th= prctile(thmit,99);
+    th= prctile(thmit,99)
     prc_descartado= 1-sum(h_unacc(x_unacc<th));
     
     parfor i=1:numel(per)
@@ -46,7 +46,7 @@ function [ tp_per ] = trainSpike ()
     aceptableTP = 0.98;
     
     d = abs(tp_out-aceptableTP);
-    tp_per = per(d==min(d));
+    tp_per = per(d==min(d))
     
 end
 

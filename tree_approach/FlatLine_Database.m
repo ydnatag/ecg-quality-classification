@@ -4,24 +4,24 @@ function [  ] = FlatLine_Database(  )
     global file_flatline;
     
     PATH = './../records/set-a/';
-    f = fopen([PATH 'RECORDS']);
+    f = fopen([PATH 'RECORDS-unacceptable']);
     files = textscan(f,'%s');
     fclose(f);
     files = files{1};
     files_num= size(files,1);
     
-    file_flatline = fopen([PATH 'RECORDS-flatline'],'w+');
+    file_flatline = fopen([PATH 'RECORDS-flatline']); % Por las dydas comento el %w para no pisar jejejejejej%'w+');
     
-    for i=1:nnn
+    for i=1:files_num
         record = files{i};
         ECGw = ECGwrapper ('recording_name', [PATH record]);
-        plot_ecg_strip(ECGw);
+        plot_ecg_strip(ECGw,'Lead_gain',1.3*ones(ECGw.ECG_header.nsig,1));
         a= findall(0,'type','figure');
         set(a(1),'WindowKeyPressFcn',{@KB_CallBack});
+        figure(a(1));
         uiwait
-        
-        
-        
+        figure(a(1));
+               
         close all;
     end
     

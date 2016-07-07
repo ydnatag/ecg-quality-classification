@@ -896,8 +896,8 @@ end
 if( isempty(lead_offset) )
     
     if( cant_leads > 1 )
-        lead_offset = 1.1*( (ecg_min(1:end-1) - ecg_median(1:end-1))  .* gains(1:end-1) - ( ecg_max(2:end) - ecg_median(2:end) ) .* gains(2:end) );
-        offsets = ecg_median .* gains + abs([0; cumsum(lead_offset)]) ;
+        lead_offset = 1.5e3 * [1:cant_leads-1]'; %1.1*( (ecg_min(1:end-1) - ecg_median(1:end-1))  .* gains(1:end-1) - ( ecg_max(2:end) - ecg_median(2:end) ) .* gains(2:end) );
+        offsets = ecg_median .* gains + [0; lead_offset] ;
     else
         lead_offset = 0;
         offsets = 0;
@@ -916,7 +916,14 @@ plot_rigth_margin_width = 0.035;
 plot_top_margin_width = 0.1;
 plot_bottom_margin_width = 0.1;
 
+%plotYrange = 12e3;
+%plotYmin=-0e3;
+%plotYmax=-12e3;
 [plotYrange, plotYmin, plotYmax] = CalcPlotYlimits(ecg_min, ecg_max, gains, offsets);
+
+plotYmax = 1e3;
+plotYmin = -1.8e4;
+plotYrange = plotYmax-plotYmin;
 
 plotXmin = aux_idx(1); 
 plotXmax = aux_idx(end);
@@ -934,7 +941,7 @@ hold(axes_hdl, 'on')
 
 %plot ECG scaled and translated
 ECG_hdl = plot(axes_hdl, aux_idx, bsxfun( @minus, bsxfun( @times, ECG, rowvec(gains)), rowvec(offsets) ), 'LineWidth', 1.3 );
-
+% ylim([-12e3 0]);
 % ylabel(['ECG (' heasig.units(1,:) ')' ]);
 % xlabel(['Time (s) relative to start of segment' ]);
 set(axes_hdl, 'Box', 'off' );
