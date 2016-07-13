@@ -13,7 +13,6 @@ function [  ] = main( )
     parfor i=1:acc_files_num
         ECGw = ECGwrapper ('recording_name', [PATH acc_files{i}]);
         acc_res(i)=Acceptable_tree(ECGw);
-        acc_noise(i) = isNoisy(ECGw);
         if (acc_res(i)==0)
             acc_noise(i) = isNoisy(ECGw);
         end
@@ -57,7 +56,7 @@ function [  ] = main( )
             tn, ...
             fp, ...
             (tn/cant_unacc)*100);
-    save('./../results/tree/results.mat','acc_files','acc_res','unacc_files','unacc_res');
+    save('./../results/tree/results.mat','acc_files','acc_res','unacc_files','unacc_res','unacc_noise','acc_noise');
 end
 
 function [ret] = Acceptable_tree (ECGw)
