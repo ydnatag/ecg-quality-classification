@@ -243,7 +243,7 @@ report_filename = p.Results.ReportFilename;
 clear p
 
 cLinespecs = [];
-this_path = fileparts('/usr/local/MATLAB/MATLAB_Production_Server/ecg-kit/common/plot_ecg_strip.m');
+this_path = fileparts('/home/ademski/Documents/UTN/DPLAB/Cardiologia/ecg-kit/common/plot_ecg_strip.m');
 cLinespecs = load([ this_path filesep 'clinespecs.mat']);
 cLinespecsNone = cLinespecs.cLinespecsNone;
 cLinespecs = cLinespecs.cLinespecs;

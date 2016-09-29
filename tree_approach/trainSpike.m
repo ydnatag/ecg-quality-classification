@@ -2,23 +2,22 @@ function [ tp_per ] = trainSpike ()
     [acc_train unacc_train acc_test unacc_test] = get_train_set(1);
     
     N = size(acc_train,1)+size(unacc_train,1);
-    th = 20;
     per = logspace(-8,0,100); %[0.0:0.02:0.1]; % Por ahi hay que cambiarlo a logspace porque los puntos con los que genera la roc estan muy agrupados
-  
-    thacc = trainSpikeTH(1); % Vector de maximas derivadas de los OK
-    thunacc = trainSpikeTH(0); % vector de maximas derivadas de los NO OK
+    per = linspace(0,1,20);
+    %thacc = trainSpikeTH(1); % Vector de maximas derivadas de los OK
+    %thunacc = trainSpikeTH(0); % vector de maximas derivadas de los NO OK
     thmit = trainSpikeTH(-1); % vector de maximas derivadas del MIT
 
-    [h_acc x_acc] = hist(thacc,0:3:250);
-    [h_unacc x_unacc]  = hist(thunacc,0:3:250);
-    [h_mit x_mit] = hist(thmit,0:3:250);
+    %[h_acc x_acc] = hist(thacc,0:3:250);
+    %[h_unacc x_unacc]  = hist(thunacc,0:3:250);
+    [h_mit x_mit] = hist(thmit,0:5:240);
     
-    h_acc = h_acc/numel(thacc);
-    h_unacc = h_unacc/numel(thunacc);
+    %h_acc = h_acc/numel(thacc);
+    %h_unacc = h_unacc/numel(thunacc);
     h_mit = h_mit/numel(thmit);
     
-    th= prctile(thmit,99)
-    prc_descartado= 1-sum(h_unacc(x_unacc<th));
+    th= prctile(thmit,90)
+    %prc_descartado= 1-sum(h_unacc(x_unacc<th));
     
     parfor i=1:numel(per)
         [tp] = cellfun(@(x)calc_spikes(x,th,per(i)),acc_train);
@@ -39,7 +38,7 @@ function [ tp_per ] = trainSpike ()
     end
     
     trapz(fp_out,tp_out);
-    plot(fp_out,tp_out);
+    plot(fp_out,tp_out);    
     d = sqrt(fp_out.^2+(1-tp_out).^2);
     
     best_per = per(d==min(d)); % Mas cercano al ideal 
@@ -47,9 +46,17 @@ function [ tp_per ] = trainSpike ()
     
     d = abs(tp_out-aceptableTP);
     tp_per = per(d==min(d))
-    
+    tp = tp_out*numel(acc_train)
+    tn = numel(unacc_train)-fp_out*numel(unacc_train)
+    fn = numel(acc_train)-tp_out*numel(acc_train)
+    fp = fp_out*numel(unacc_train)
+    Accuracy = (tp(3)+tn(3))/(tp(3)+tn(3)+fp(3)+fn(3))
+    Sensitivity = tp(3)/(tp(3)+fn(3))
+    Specificity = tn(3)/(tn(3)+fp(3))
 end
 
+% Estos resultados que se obtivieron estan mal, hay que cambiar la base de
+% datos de entrenamiento, sino los resultados no tienen sentido.
 
 function [th_vec] = trainSpikeTH (acc)
     if (acc==1)
@@ -126,7 +133,7 @@ end
 
 
 function [ acc_train_files unacc_train_files acc_test_files unacc_test_files ] = get_train_set( per )
-    f = fopen(['./../records/set-a/RECORDS-acceptable']);
+    f = fopen(['./../records/set-a/RECORDS-Myacceptable']);
     files = textscan(f,'%s');
     fclose(f);
     files = files{1};
@@ -139,7 +146,7 @@ function [ acc_train_files unacc_train_files acc_test_files unacc_test_files ] =
     acc_train_files = files(acc_train_idx);
     acc_test_files = files(acc_test_idx);
     
-    f = fopen(['./../records/set-a/RECORDS-unacceptable']);
+    f = fopen(['./../records/set-a/RECORDS-noflat-unacceptable']);
     files = textscan(f,'%s');
     fclose(f);
     files = files{1};

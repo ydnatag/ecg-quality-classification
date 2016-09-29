@@ -27,7 +27,7 @@ function [ th ] = trainFlatLine(  )
 %     '2883516'
 
 
-    f = fopen([PATH 'RECORDS-Myacceptable']);
+    f = fopen([PATH 'RECORDS-unacceptable']);
     files = textscan(f,'%s');
     fclose(f);
     files = files{1};
@@ -95,13 +95,13 @@ function [ th ] = trainFlatLine(  )
     flat_cant_std= cant_std/files_num;
     flat_cant_delta= cant_delta/files_num;
     
-    subplot 311
-    plot(1:1000,[acc_cant_delta' flat_cant_delta'])
-    subplot 312
-    plot(1:1000,[acc_cant_dxdt' flat_cant_dxdt'])
-    subplot 313
-    plot(1:1000,[acc_cant_std' flat_cant_std'])
     
+    plot(acc_cant_delta, flat_cant_delta);
+    hold on;
+    plot(acc_cant_dxdt, flat_cant_dxdt,'g-');
+    plot(acc_cant_std, flat_cant_std),'r.';
+    
+    hold off;
     %% Por los resultados mostrados en la figura anterior, elijo como TH el IDX 100 de la media de la derivada => 0.0017 mV/muestra *fs => 
 
 end

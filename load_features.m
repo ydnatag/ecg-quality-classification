@@ -1,5 +1,5 @@
 function [ t features results] = load_features (dataset)
-    PATH = ['./results/' dataset '/'];
+    PATH = ['./../results/' dataset '/'];
     d = dir(PATH);
     result = {d.name};
     result(:,1:2)=[];
@@ -8,12 +8,12 @@ function [ t features results] = load_features (dataset)
     
     [sqi acc] = cellfun(@(x) load_a_lead(x),result);
     
-    [sqi acc]=serializar(sqi,acc);
+%     [sqi acc]=serializar(sqi,acc);
     
     sqi = nan_correction(sqi);
-    features = struct2array(sqi);
-    results = acc;
-    t = [struct2table(sqi) table(acc)];    
+%     features = struct2array(sqi);
+%     results = acc;
+    t = [struct2table(sqi) table(acc','VariableNames',{'acc'})];    
 
 end
 
@@ -26,16 +26,17 @@ end
 
 
 function [sqi] = nan_correction(sqi)
-    sqi.sSQI(isnan(sqi.sSQI))= 0;%realmax;%0;
-    sqi.kSQI(isnan(sqi.kSQI))= 0;%realmax;%0;
-    sqi.purSQI(isnan(sqi.purSQI))=0;%realmax;%0;
-    sqi.hfSQI(isnan(sqi.hfSQI))=0;%realmax;
-    sqi.bsSQI(isnan(sqi.bsSQI))=0;%realmax;
-    sqi.pcaSQI(isnan(sqi.pcaSQI))=0;%realmax;%1;
-    sqi.robpcaSQI(isnan(sqi.robpcaSQI))=0;%realmax;%1;
-    sqi.entSQI(isnan(sqi.entSQI))=0;%realmax;%0;
-    sqi.entSQI(isinf(sqi.entSQI))=0;%realmax;
-    
+    for i=1:numel(sqi)
+        sqi(i).sSQI(isnan(sqi(i).sSQI))= 0;%realmax;%0;
+        sqi(i).kSQI(isnan(sqi(i).kSQI))= 0;%realmax;%0;
+        sqi(i).purSQI(isnan(sqi(i).purSQI))=0;%realmax;%0;
+        sqi(i).hfSQI(isnan(sqi(i).hfSQI))=0;%realmax;
+        sqi(i).bsSQI(isnan(sqi(i).bsSQI))=0;%realmax;
+        sqi(i).pcaSQI(isnan(sqi(i).pcaSQI))=0;%realmax;%1;
+        sqi(i).robpcaSQI(isnan(sqi(i).robpcaSQI))=0;%realmax;%1;
+        sqi(i).entSQI(isnan(sqi(i).entSQI))=0;%realmax;%0;
+        sqi(i).entSQI(isinf(sqi(i).entSQI))=0;%realmax;
+    end
 end
 
 
